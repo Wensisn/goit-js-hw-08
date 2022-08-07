@@ -1,37 +1,37 @@
 import throttle from 'lodash.throttle';
-const STORAGE_KEY = 'feedback-form-state';
-const feedbackFormData = {};
 
 const refs = {
-  form: document.querySelector('.feedback-form'),
-  input: document.querySelector('.feedback-form input'),
-  textarea: document.querySelector('.feedback-form textarea'),
-};
-
-refs.form.addEventListener('submit', onFormSubmit);
-refs.form.addEventListener('input', throttle(onFormInput, 500));
-
-populateOnFormInput();
-
-function onFormInput(e) {
-  feedbackFormData[e.target.name] = e.target.value;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(feedbackFormData));
+    form: document.querySelector('.feedback-form'),
+    input: document.querySelector('.feedback-form input'),
+    message: document.querySelector('.feedback-form textarea')
 }
+const STORAGE_VALUE = 'feedback-form-state'
+const formData = {};
 
 function onFormSubmit(e) {
-  e.preventDefault();
-  e.currentTarget.reset();
-  localStorage.removeItem(STORAGE_KEY);
-  console.log(feedbackFormData);
+    if (refs.input.value === "" || refs.message.input === "") {
+        return alert('Заполните все поля')
+    } else {
+        e.preventDefault();
+        e.target.reset();
+        localStorage.removeItem(STORAGE_VALUE)
+    }
 }
 
-function populateOnFormInput() {
-  const savedMessage = JSON.parse(localStorage.getItem(STORAGE_KEY));
-
-  if (savedMessage) {
-    refs.input.value = savedMessage.email || '';
-    refs.textarea.value = savedMessage.message || '';
-    feedbackFormData.email = refs.input.value;
-    feedbackFormData.message = refs.textarea.value;
-  }
+function onFormInput(e) {
+    formData[e.target.name] = e.target.value;
+    const stringData = JSON.stringify(formData);
+    localStorage.setItem(STORAGE_VALUE, stringData);
 }
+
+function restoreData() {
+    const restData = JSON.parse(localStorage.getItem(STORAGE_VALUE));
+
+    if (restData) {
+        refs.input.value = restData.email || '';
+        refs.message.value = restData.message || '';
+    }
+}
+refs.form.addEventListener('submit', onFormSubmit);
+refs.form.addEventListener('input', throttle(onFormInput, 500));
+restoreData()
